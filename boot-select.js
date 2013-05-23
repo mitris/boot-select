@@ -33,7 +33,7 @@
 			var $this = this;
 			this.$dropdown = $(
 					'<div class="dropdown pull-left boot-select">' +
-						'<span class="btn dropdown-toggle ' + this.options.size + '" ssdata-toggle="dropdown">' +
+						'<span class="btn dropdown-toggle ' + this.options.size + '">' +
 							'<span class="option pull-left hide"></span>' +
 							'<span class="placeholder pull-left hide">' + this.options.placeholder + '</span>' +
 							'<span class="pull-right toggle"><i class="icon-angle-down"></i></span>' +
