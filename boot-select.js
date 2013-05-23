@@ -3,7 +3,7 @@
  * http://github.com/mitris/boot-select
  * ============================================================ */
 !function($) {
-  "use strict"; // jshint ;_;
+	"use strict"; // jshint ;_;
 
 	var Select = function(element, options) {
 		this.$element = $(element);
@@ -53,6 +53,7 @@
 			this.$current = this.$button.find('.option');
 			this.$placeholder = this.$button.find('.placeholder');
 			this.$clear = this.$button.find('.clear');
+			this.$button.data('original-class', this.$button.attr('class'));
 			this.$current.data('original-class', this.$current.attr('class'));
 			this.$button.on('click.boot-select', function(e) {
 				$this.$dropdown.toggleClass('open');
@@ -73,7 +74,7 @@
 			$this.$list.empty();
 			$this.$element.find('option').each(function() {
 				var $option = $(this),
-						$li = $('<li><a href="#"><span class="' + $option.attr('class') + '">' + $option.text() + '</span></a></li>');
+						$li = $('<li><a href="#"><span class="' + $option.data('option-class') + '">' + $option.text() + '</span></a></li>');
 				if ($option.val()) {
 					$this.$list.append($li);
 					$li.on("click", function() {
@@ -88,7 +89,8 @@
 			this.options.onChangeBefore.apply(this);
 			if ($option.val()) {
 				this.$element.val($option.val());
-				this.$current.text($option.text()).attr('class', this.$current.data('original-class') + ' ' + $option.attr('class')).show();
+				this.$current.text($option.text()).attr('class', this.$current.data('original-class') + ' ' + $option.data('current-class')).show();
+				this.$button.attr('class', this.$button.data('original-class') + ' ' + $option.data('btn-class'));
 				this.$placeholder.hide();
 				this.$dropdown.removeClass('open');
 			} else {
@@ -102,6 +104,7 @@
 		clear: function() {
 			this.$element.prop('selectedIndex', 0);
 			this.$current.hide();
+			this.$button.attr('class', this.$button.data('original-class'));
 			this.$placeholder.show();
 			this.options.onClear.apply(this);
 		}
