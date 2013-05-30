@@ -31,7 +31,7 @@
 		},
 		createDropdown: function() {
 			var $this = this;
-			this.$dropdown = $(
+			this.$dropdown = $('<div class="clearfix">' +
 					'<div class="dropdown pull-left boot-select">' +
 						'<span class="btn dropdown-toggle ' + this.options.size + '">' +
 							'<span class="option pull-left hide"></span>' +
@@ -46,8 +46,8 @@
 								'</div>' +
 							'</div>' +
 						'</div>' +
-					'</div>'
-					);
+					'</div>' +
+				'</div>');
 			this.$button = this.$dropdown.find('.btn');
 			this.$current = this.$button.find('.option');
 			this.$placeholder = this.$button.find('.placeholder');
@@ -87,11 +87,16 @@
 					$this.$list.append($this.$list_options[$option.val()]);
 				}
 			});
-			this.options.onUpdate.apply(this);
+			this.options.onUpdate.apply(this.$element);
 		},
-		setCurrent: function($option, keepOpen) {
+		setCurrent: function($option, keepOpen, skipEvents) {
+//			if(typeof $option != jQuery) {
+//				console.log($option);
+//				$option = this.$list_options[$option];
+//			}
 			keepOpen = keepOpen || false;
-			this.options.onChangeBefore.apply(this);
+			skipEvents = skipEvents || false;
+			!skipEvents && this.options.onChangeBefore.apply(this.$element);
 			if ($option.val()) {
 				this.$list.find('li').removeClass('active');
 				this.$list_options[$option.val()].addClass('active');
@@ -112,7 +117,7 @@
 			} else {
 				this.clear();
 			}
-			this.options.onChange.apply(this);
+			!skipEvents && this.options.onChange.apply(this.$element);
 		},
 		scrollToSelectedOption: function() {
 			this.$dropdown_menu.animate({
@@ -129,7 +134,7 @@
 			this.$current.hide();
 			this.$button.attr('class', this.$button.data('original-class'));
 			this.$placeholder.show();
-			this.options.onClear.apply(this);
+			this.options.onClear.apply(this.$element);
 		},
 		attachEvents: function () {
 			var $this = this;
