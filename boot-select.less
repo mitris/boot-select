@@ -1,0 +1,57 @@
+.boot-select {
+  width: 220px;
+  margin-bottom: 10px;
+  .btn {
+    width: 100%;
+    .current,
+    .placeholder {
+      clear: left;
+      float: left;
+      overflow: hidden;
+      text-align: left;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 175px;
+    }
+    .placeholder {
+      display: none;
+      color: #757575;
+    }
+    .actions {
+      float: right;
+      .clear { position: relative; top: -1px; padding-left: 5px; }
+      .toggle { padding-left: 5px; }
+    }
+  }
+  .dropdown-menu {
+    padding: 0;
+    overflow-x: hidden;
+    max-height: 150px;
+    min-width: 100%;
+    max-width: 450px;
+    a {
+      padding: 4px 6px;
+    }
+  }
+}
+/* Helpful classes */
+select, .btn, .btn-group {
+  &.input-mini { width: 74px; }
+  &.input-small { width: 104px; }
+  &.input-medium { width: 164px; }
+  &.input-large { width: 224px; }
+  &.input-xlarge { width: 284px; }
+  &.input-xxlarge { width: 544px; }
+  &.input-block-level { width: 100%; }
+}
+select, .btn {
+  &.input-mini,
+  &.input-small,
+  &.input-medium,
+  &.input-large,
+  &.input-xlarge,
+  &.input-xxlarge,
+  &.input-block-level {
+    padding: 4px 6px;
+  }
+}
