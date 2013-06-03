@@ -1,5 +1,5 @@
 /* ============================================================
- * boot-select.js v2.0.1
+ * boot-select.js v2.0.2
  * http://github.com/mitris/boot-select
  * ============================================================ */
 
@@ -28,13 +28,14 @@
         _generateView: function () {
             this.view = $('<div class="dropdown btn-group boot-select"></div>');
             this.button = $('<span class="btn dropdown-toggle input-block-level"></span>');
-    		this.text = $('<span class="text"></span>');
+			this.text = $('<span class="text"></span>');
             this.current = $('<span class="current"></span>');
             this.placeholder = $('<span class="placeholder">' + this.settings.placeholder + '</span>');
             this.actions = $('<span class="actions"></span>');
             this.clearButton = $('<span class="clear">' + this.settings.clearButton + '</span>');
             this.toggleButton = $('<span class="toggle">' + this.settings.toggleButton + '</span>');
-            this.dropdown = $('<ul class="dropdown-menu"></ul>');
+            this.dropdown = $('<div class="dropdown-menu"><div class="nano"><div class="content"><ul></ul></div></div></div>');
+			this.dropdown_list = this.dropdown.find('ul');
             this.view.append(this.button, this.dropdown);
             this.button.append(this.text, this.actions);
 			this.text.append(this.current, this.placeholder);
@@ -44,7 +45,7 @@
         _updateOptions: function () {
             var self = this;
             self.options = {};
-            self.dropdown.empty();
+            self.dropdown_list.empty();
             self.elementOptionsLength = this.element.get(0).options.length;
             self.element.find('option[value][value!=""]').each(function () {
                 var option = $('<li><a href="javascript:void(0)"><span>' + $(this).text() + '</span></a></li>');
@@ -55,13 +56,14 @@
 				option.addClass($(this).data('li-class'));
 				option.find('a').addClass($(this).data('a-class'));
 				option.find('span').addClass($(this).data('span-class'));
-                self.dropdown.append(option);
+                self.dropdown_list.append(option);
                 self.options[$(this).val()] = option;
                 if ($(this).is(':disabled')) {
                     option.addClass('disabled');
                 }
                 option.data('value', $(this).val());
             });
+			this._fixHeight();
             this._scrollToCurrent();
         },
         _updateSelected: function () {
@@ -71,6 +73,10 @@
         _fixWidth: function() {
             var width = this.button.width() - this.clearButton.outerWidth() - this.toggleButton.outerWidth();
             this.text.width(width);
+        },
+        _fixHeight: function() {
+			var li = this.dropdown_list.find('li'), items = li.size() <= 5 ? li.size(): 5;
+			this.dropdown.height(items * li.outerHeight());
         },
         _applySettings: function () {
             if (this.element.is(':disabled')) {
@@ -200,8 +206,14 @@
             var self = this;
             this._scrollToCurrent();
             this.button.addClass('active');
-            this.dropdown.show();
+            this.dropdown.css('visibility', 'visible').show();
             this.visible = true;
+			if('undefined' != typeof $.fn.nanoScroller) {
+				this.dropdown.find('.nano').nanoScroller({
+					iOSNativeScrolling: true,
+					preventPageScrolling: true
+				});
+			}
             $(document).one('click.boot-select', function (e) {
                 self.visible && self.hide();
             });
@@ -209,7 +221,7 @@
         hide: function () {
             this._scrollToCurrent();
             this.button.removeClass('active');
-            this.dropdown.hide();
+            this.dropdown.css('visibility', 'hidden').hide();
             this.visible = false;
         }
     };
