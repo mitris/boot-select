@@ -5,8 +5,7 @@
 .boot-select .btn {
   width: 100%;
 }
-.boot-select .btn .current,
-.boot-select .btn .placeholder {
+.boot-select .btn .text {
   clear: left;
   float: left;
   overflow: hidden;
@@ -39,6 +38,9 @@
 }
 .boot-select .dropdown-menu a {
   padding: 4px 6px;
+}
+.controls .boot-select {
+  margin-bottom: 0;
 }
 /* Helpful classes */
 select.input-mini,
