@@ -85,7 +85,7 @@ Public methods:
 
 **toggle** - Toggle show/hide dropdown
 
-**show** - Show dropdown. *Known issue with show: does't work properly*
+**show** - Show dropdown. *Known issue: doesn't work properly*
 
 **hide** - Hide dropdown
 
