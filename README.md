@@ -58,36 +58,25 @@ Much more features see on demo page.
 Example with all supported options provided by default:
 -----------
 ```javascript
-$('#your-select').bootSelect.defaults = {
-  debug: false,
+$('#your-select').bootSelect({
   enableClear: true,
   autoClose: true,
   keyboardNavigation: true,
-  size: 'input-initial',
   placeholder: "Select from list",
   onChange: function() {
     // your own logic here...
-  },
-  onChangeBefore: function() {
-    // your own logic here...
   }
-};
+});
 ```
 Options:
 -----------
-**debug** - Original `<select>` doesn't hide.
-
 **enableClear** - Show clear button near caret icon.
 
 **autoClose** - Hide dropdown list when clicked otherwhere, set to <false> if you want to close it manually
 
 **keyboardNavigation** - Enable `esc` `return` `up` and `down` keyboard buttons, when dropdown list is activated
 
-**size** *string* - CSS class, who applied to select. Nice works with Bootstrap `input-` classes: `input-mini` `input-small` `input-medium` `input-large` `input-xlarge` `input-xxlarge`
-
 **onChange** *function* - Called, when selected option was changed.
-
-**onChangeBefore** *function* - Called on change, but before any manipulations will be made with `<option>` and `<select>`.
 
 Depends on:
 -----------
@@ -99,7 +88,7 @@ Depends on:
 #### @TODO
 - [ ] Support of `<optgroup>` tag
 - [ ] Specific design for `<select>` `<optgroup>` `<option>`  via `data-` attributes, maybe with parametrs in constructor
-- [ ] Handle disabled tags: `<select>` `<optgroup>` `<option>`
+- [*] Handle disabled tags: `<select>` `<optgroup>` `<option>`
 - [ ] In future add support of simple templating
 - [ ] Some useful functionality :)
 
