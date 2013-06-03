@@ -1,206 +1,236 @@
 /* ============================================================
- * boot-select.js v1.0.0
+ * boot-select.js v2.0.0
  * http://github.com/mitris/boot-select
  * ============================================================ */
-!function($) {
-	"use strict"; // jshint ;_;
 
-	var Select = function(element, options) {
-		this.$element = $(element);
-		this.options = $.extend({}, $.fn.bootSelect.defaults, this.$element.data(), typeof options == 'object' && options);
+!function ($) {
+    "use strict"; // jshint ;_;
 
-		this.createDropdown();
-		this.updateOptions();
-		this.render();
-		this.attachEvents();
-		this.init();
-	};
+    var cache = {};
+    var Select = function (element, settings) {
+        this.element = $(element);
+        this.settings = $.extend(true, {}, $.fn.bootSelect.defaults, typeof settings == 'object' && settings, this.element.data());
+        this.value = false;
+        this.init();
+    };
 
-	Select.prototype = {
-		constructor: Select,
-		init: function() {
-			var $this = this;
-			!this.options.debug && this.$element.hide();
-			this.$element.find("option:selected").each(function() {
-				$this.setCurrent($(this));
-			});
-			this.$element.on('change', function(e) {
-				$this.setCurrent($(this).find('option:selected'));
-			});
-			this.options.onInit.apply(this);
-		},
-		createDropdown: function() {
-			var $this = this;
-			this.$dropdown = $('<div class="clearfix">' +
-					'<div class="dropdown pull-left boot-select">' +
-						'<span class="btn dropdown-toggle ' + this.options.size + '">' +
-							'<span class="option pull-left hide"></span>' +
-							'<span class="placeholder pull-left hide">' + this.options.placeholder + '</span>' +
-							'<span class="pull-right toggle"><i class="icon-angle-down"></i></span>' +
-							'<span class="pull-right clear hide">&times;</span>' +
-						'</span>' +
-						'<div class="dropdown-menu">' +
-							'<div class="nano">' +
-								'<div class="content">' +
-									'<ul></ul>' +
-								'</div>' +
-							'</div>' +
-						'</div>' +
-					'</div>' +
-				'</div>');
-			this.$button = this.$dropdown.find('.btn');
-			this.$current = this.$button.find('.option');
-			this.$placeholder = this.$button.find('.placeholder');
-			this.$clear = this.$button.find('.clear');
-			this.$dropdown_menu = this.$dropdown.find('.dropdown-menu');
-			this.$list = this.$dropdown_menu.find('ul');
-			this.$button.data('original-class', this.$button.attr('class'));
-			this.$current.data('original-class', this.$current.attr('class'));
-			this.$button.on('click.boot-select', function(e) {
-				if($.fn.nanoScroller) {
-					$this.$dropdown.find('.nano').nanoScroller({
-						preventPageScrolling: true
-					});
-				}
-				$this.$dropdown.toggleClass('open');
-				$this.scrollToSelectedOption();
-			});
-			if (this.options.enableClear) {
-				this.$clear.show().on('click.boot-select', function(e) {
-					e.stopPropagation();
-					$this.clear();
-				});
-			}
-		},
-		updateOptions: function() {
-			var $this = this;
-			$this.$list.empty();
-			$this.$list_options = {};
-			$this.$element.find('option').each(function() {
-				var $option = $(this);
-				$this.$list_options[$option.val()] = $('<li><span>' + $option.text() + '</span></li>');
-				$this.$list_options[$option.val()].find('span').addClass($option.data('option-class')).data('value', $option.val())
-				if ($option.val()) {
-					$this.$list_options[$option.val()].on("click", function() {
-						$this.setCurrent($option);
-					});
-					$this.$list.append($this.$list_options[$option.val()]);
-				}
-			});
-			this.options.onUpdate.apply(this.$element);
-		},
-		setCurrent: function($option, keepOpen, skipEvents) {
-//			if(typeof $option != jQuery) {
-//				console.log($option);
-//				$option = this.$list_options[$option];
-//			}
-			keepOpen = keepOpen || false;
-			skipEvents = skipEvents || false;
-			!skipEvents && this.options.onChangeBefore.apply(this.$element);
-			if ($option.val()) {
-				this.$list.find('li').removeClass('active');
-				this.$list_options[$option.val()].addClass('active');
-				this.$element.val($option.val());
-				this.$current
-						.text($option.text())
-						.removeClass()
-						.addClass(this.$current.data('original-class'))
-						.addClass($option.data('current-class'))
-						.show();
-				this.$button
-						.removeClass()
-						.addClass(this.$button.data('original-class'))
-						.addClass($option.data('btn-class'));
-				this.$placeholder.hide();
-				this.scrollToSelectedOption();
-				!keepOpen && this.$dropdown.removeClass('open');
-			} else {
-				this.clear();
-			}
-			!skipEvents && this.options.onChange.apply(this.$element);
-		},
-		scrollToSelectedOption: function() {
-			this.$dropdown_menu.animate({
-				scrollTop: this.$list.find('li.active').index() * this.$list.find('li.active').outerHeight()
-			}, 100);
-		},
-		render: function() {
-			this.$element.after(this.$dropdown);
-		},
-		clear: function() {
-			this.$dropdown_menu.animate({scrollTop: 0}, 100);
-			this.$list.find('li').removeClass('active');
-			this.$element.prop('selectedIndex', 0);
-			this.$current.hide();
-			this.$button.attr('class', this.$button.data('original-class'));
-			this.$placeholder.show();
-			this.options.onClear.apply(this.$element);
-		},
-		attachEvents: function () {
-			var $this = this;
-			if($this.options.keyboardNavigation) {
-				$(document).on('keypress.boot-select', function (e) {
-					if ($this.$dropdown.hasClass('open') && /(38|40|27|13)/.test(e.keyCode))  {
-						e.preventDefault();
-						e.stopPropagation();
-						if (e.keyCode == 27 || e.keyCode == 13) {
-							$this.$dropdown.removeClass('open');
-						}
-						if(e.keyCode == 38) {
-							$this.setCurrent($this.$element.find('option:selected').prev(), true);
-						}
-						if(e.keyCode == 40) {
-							$this.setCurrent($this.$element.find('option:selected').next(), true);
-						}
-					}
-				});
-			}
-			if($this.options.autoClose) {
-				var $this = this;
-				$(document).on('click.boot-select', function (e) {
-					if (!$this.$dropdown.is(e.target) && !$this.$dropdown.has(e.target).length) {
-						$this.$dropdown.removeClass('open');
-					}
-				});
-			}
-		}
-	}
-	
-	/* PLUGIN DEFINITION */
-	$.fn.bootSelect = function(option) {
-		var args = Array.apply(null, arguments);
-		args.shift();
-		return this.each(function() {
-			var $this = $(this), data = $this.data('bootSelect'), options = typeof option == 'object' && option;
-			if (!data || typeof data != 'object') {
-				$this.data('bootSelect', (data = new Select(this, options)));
-			}
-			if (typeof option == 'string' && typeof data[option] == 'function') {
-				return data[option].apply(data, args);
-			} else if (typeof option == 'string' && typeof data[option] == 'undefined' && data.options.debug) {
-				console.log("BootSelect Error: Method \"" + option + "\" does not exist.");
-			}
-		})
-	};
+    Select.prototype = {
+        constructor: Select,
+        init: function () {
+            this.visible = false;
+            this._generateView();
+            this._applySettings();
+            this._fixWidth();
+            this._updateOptions();
+            this._updateSelected();
+            this._attachEvents();
+        },
+        _generateView: function () {
+            this.view = $('<div class="dropdown btn-group boot-select"></div>');
+            this.button = $('<span class="btn dropdown-toggle input-block-level"></span>');
+            this.current = $('<span class="current"></span>');
+            this.placeholder = $('<span class="placeholder">' + this.settings.placeholder + '</span>');
+            this.actions = $('<span class="actions"></span>');
+            this.clearButton = $('<span class="clear">' + this.settings.clearButton + '</span>');
+            this.toggleButton = $('<span class="toggle">' + this.settings.toggleButton + '</span>');
+            this.dropdown = $('<ul class="dropdown-menu"></ul>');
+            this.view.append(this.button, this.dropdown);
+            this.button.append(this.current, this.placeholder, this.actions);
+            this.actions.append(this.clearButton, this.toggleButton);
+            this.element.hide().before(this.view);
+        },
+        _updateOptions: function () {
+            var self = this;
+            self.options = {};
+            self.dropdown.empty();
+            self.elementOptionsLength = this.element.get(0).options.length;
+            self.element.find('option[value][value!=""]').each(function () {
+                var option = $('<li><a href="#">' + $(this).text() + '</a></li>');
+                option.data('button-class', $(this).data('button-class'));
+                if ($(this).data('class')) {
+                    option.addClass($(this).data('class'));
+                }
+                self.dropdown.append(option);
+                self.options[$(this).val()] = option;
+                if ($(this).is(':disabled')) {
+                    option.addClass('disabled');
+                }
+                option.data('value', $(this).val());
+            });
+            this._scrollToCurrent();
+        },
+        _updateSelected: function () {
+            this._select(this.element.find(':selected'));
+        },
+        _fixWidth: function() {
+            var width = this.button.width() - this.clearButton.outerWidth() - this.toggleButton.outerWidth();
+            this.current.width(width);
+            this.placeholder.width(width);
+        },
+        _applySettings: function () {
+            if (this.element.is(':disabled')) {
+                this.button.addClass('disabled')
+            }
+            if (!this.settings.enableClear) {
+                this.clearButton.remove();
+            }
+            if (this.element.data('class')) {
+                this.view.addClass(this.element.data('class'));
+            }
+            if (!this.button.data('original-class')) {
+                this.button.data('original-class', this.button.attr('class'));
+            }
+        },
+        _attachEvents: function () {
+            var self = this;
+            self.view.on('click.boot-select', function (e) {
+                e.stopPropagation();
+            });
+            self.button.on('click.boot-select', function () {
+                self.toggle();
+            });
+            self.clearButton.on('click.boot-select', function (e) {
+                e.stopPropagation();
+                self.clear();
+            });
+            self.dropdown.on('click.boot-select', 'li', function () {
+                if (!$(this).hasClass('disabled')) {
+                    self.select($(this).data('value'));
+                    self.hide();
+                }
+            });
+            self.element.on('change.boot-select', function () {
+                self.select(this.value);
+            });
+            $(window).on('resize.boot-select', function() {
+                self._fixWidth();
+            });
+            if (self.settings.keyboardNavigation) {
+                $(document).on('keypress.boot-select', function (e) {
+                    e.stopPropagation();
+                    if (self.visible && /(13|27|38|40)/.test(e.keyCode)) {
+                        if (e.keyCode == 27 || e.keyCode == 13) {
+                            self.hide();
+                        }
+                        if (e.keyCode == 38) {
+                            var option = self.element.find('option:selected').prevAll('[value][value!=""]:not(:disabled):first');
+                            log(option, option.index())
+                            if (option.index() > 0) {
+                                self.select(option);
+                            }
+                        }
+                        if (e.keyCode == 40) {
+                            var option = self.element.find('option:selected').nextAll('[value][value!=""]:not(:disabled):first');
+                            log(option, option.index())
+                            if (option.index() > 0) {
+                                self.select(option);
+                            }
+                        }
+                    }
+                });
+            }
+        },
+        _scrollToCurrent: function () {
+            this.dropdown.scrollTop(this.dropdown.find('.active').index() * this.dropdown.find('.active').outerHeight() - this.dropdown.outerHeight() / 2);
+        },
+        _select: function (value) {
+            if (value instanceof jQuery) {
+                var option = value;
+            } else if (value instanceof HTMLElement) {
+                var option = $(value);
+            } else {
+                var option = this.element.find('option[value="' + value + '"]');
+            }
+            if (!option.val()) {
+                this.clear();
+            } else if (option.not(':disabled').prop('selected', true).is('option')) {
+                if (this.value) {
+                    this.options[this.value].removeClass('active');
+                }
+                this.value = option.val();
+                this.options[this.value].addClass('active');
+                this.current.text(this.options[this.value].text()).show();
+                this.placeholder.hide();
+                this.button.attr('class', this.button.data('original-class'));
+                if (this.options[this.value].data('button-class')) {
+                    this.button.addClass(this.options[this.value].data('button-class'));
+                }
+            }
+            this._scrollToCurrent();
+        },
+        select: function (value) {
+            this._select(value);
+            this.settings.onChange();
+        },
+        clear: function () {
+            var empty = this.element.find('option:not([value])');
+            if (empty) {
+                empty.prop('selected', true);
+            } else {
+                this.element.prop('selectedIndex', -1);
+            }
+            this.dropdown.find('.active').removeClass('active');
+            this.current.hide();
+            this.placeholder.show();
+            this.button.attr('class', this.button.data('original-class'));
+            this._scrollToCurrent();
+        },
+        update: function () {
+            return this._updateOptions();
+        },
+        toggle: function () {
+            if (this.button.hasClass('disabled')) {
+                return;
+            }
+            if (this.visible) {
+                this.hide();
+            } else {
+                this.show();
+            }
+        },
+        show: function () {
+            var self = this;
+            this._scrollToCurrent();
+            this.button.addClass('active');
+            this.dropdown.show();
+            this.visible = true;
+            $(document).one('click.boot-select', function (e) {
+                self.visible && self.hide();
+            });
+        },
+        hide: function () {
+            this._scrollToCurrent();
+            this.button.removeClass('active');
+            this.dropdown.hide();
+            this.visible = false;
+        }
+    };
 
-	$.fn.bootSelect.defaults = {
-		debug: false,
-		enableClear: true,
-		autoClose: true,
-		keyboardNavigation: true,
-		size: 'input-initial',
-		placeholder: "Выберите из списка",
-		onInit: function() {
-		},
-		onUpdate: function() {
-		},
-		onChange: function() {
-		},
-		onChangeBefore: function() {
-		},
-		onClear: function() {
-		}
-	};
-	/* DATA-API */
-	$(document).find('[data-boot-select=true]').bootSelect();
+    /* PLUGIN DEFINITION */
+    $.fn.bootSelect = function (setting) {
+        var args = Array.apply(null, arguments);
+        args.shift();
+        return this.each(function () {
+            var $this = $(this), data = $this.data('bootSelect'), settings = typeof setting == 'object' && setting;
+            if (!data || typeof data != 'object') {
+                $this.data('bootSelect', (data = new Select(this, settings)));
+            }
+            if (typeof setting == 'string' && typeof data[setting] == 'function' && setting.charAt(0) != '_') {
+                return data[setting].apply(data, args);
+            } else if (typeof setting == 'string' && typeof data[setting] == 'undefined') {
+                jQuery.error("BootSelect: Method \"" + setting + "\" does not exist.");
+            }
+        });
+    };
+
+    $.fn.bootSelect.defaults = {
+        enableClear: true,
+        keyboardNavigation: true,
+        placeholder: 'Выберите из списка',
+        clearButton: '&times;',
+        toggleButton: '<i class="icon-angle-down"></i>',
+        onChange: function () {
+        }
+    };
+
 }(window.jQuery);
