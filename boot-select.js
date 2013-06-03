@@ -1,5 +1,5 @@
 /* ============================================================
- * boot-select.js v2.0.0
+ * boot-select.js v2.0.1
  * http://github.com/mitris/boot-select
  * ============================================================ */
 
@@ -28,6 +28,7 @@
         _generateView: function () {
             this.view = $('<div class="dropdown btn-group boot-select"></div>');
             this.button = $('<span class="btn dropdown-toggle input-block-level"></span>');
+    		this.text = $('<span class="text"></span>');
             this.current = $('<span class="current"></span>');
             this.placeholder = $('<span class="placeholder">' + this.settings.placeholder + '</span>');
             this.actions = $('<span class="actions"></span>');
@@ -35,7 +36,8 @@
             this.toggleButton = $('<span class="toggle">' + this.settings.toggleButton + '</span>');
             this.dropdown = $('<ul class="dropdown-menu"></ul>');
             this.view.append(this.button, this.dropdown);
-            this.button.append(this.current, this.placeholder, this.actions);
+            this.button.append(this.text, this.actions);
+			this.text.append(this.current, this.placeholder);
             this.actions.append(this.clearButton, this.toggleButton);
             this.element.hide().before(this.view);
         },
@@ -45,11 +47,14 @@
             self.dropdown.empty();
             self.elementOptionsLength = this.element.get(0).options.length;
             self.element.find('option[value][value!=""]').each(function () {
-                var option = $('<li><a href="#">' + $(this).text() + '</a></li>');
-                option.data('button-class', $(this).data('button-class'));
-                if ($(this).data('class')) {
-                    option.addClass($(this).data('class'));
-                }
+                var option = $('<li><a href="javascript:void(0)"><span>' + $(this).text() + '</span></a></li>');
+                option.data({
+					'button-class': $(this).data('button-class'),
+					'current-class': $(this).data('current-class')
+				});
+				option.addClass($(this).data('li-class'));
+				option.find('a').addClass($(this).data('a-class'));
+				option.find('span').addClass($(this).data('span-class'));
                 self.dropdown.append(option);
                 self.options[$(this).val()] = option;
                 if ($(this).is(':disabled')) {
@@ -60,12 +65,12 @@
             this._scrollToCurrent();
         },
         _updateSelected: function () {
-            this._select(this.element.find(':selected'));
+            var currentValue = this._select(this.element.find(':selected'));
+            this.settings.onInit.apply(this.element, [currentValue, this]);
         },
         _fixWidth: function() {
             var width = this.button.width() - this.clearButton.outerWidth() - this.toggleButton.outerWidth();
-            this.current.width(width);
-            this.placeholder.width(width);
+            this.text.width(width);
         },
         _applySettings: function () {
             if (this.element.is(':disabled')) {
@@ -79,6 +84,9 @@
             }
             if (!this.button.data('original-class')) {
                 this.button.data('original-class', this.button.attr('class'));
+            }
+            if (!this.current.data('original-class')) {
+                this.current.data('original-class', this.current.attr('class'));
             }
         },
         _attachEvents: function () {
@@ -107,24 +115,19 @@
             });
             if (self.settings.keyboardNavigation) {
                 $(document).on('keypress.boot-select', function (e) {
-                    e.stopPropagation();
                     if (self.visible && /(13|27|38|40)/.test(e.keyCode)) {
+						e.stopPropagation();
+						e.preventDefault();
                         if (e.keyCode == 27 || e.keyCode == 13) {
                             self.hide();
                         }
                         if (e.keyCode == 38) {
                             var option = self.element.find('option:selected').prevAll('[value][value!=""]:not(:disabled):first');
-                            log(option, option.index())
-                            if (option.index() > 0) {
-                                self.select(option);
-                            }
+                            option.index() >= 0 &&  self.select(option);
                         }
                         if (e.keyCode == 40) {
                             var option = self.element.find('option:selected').nextAll('[value][value!=""]:not(:disabled):first');
-                            log(option, option.index())
-                            if (option.index() > 0) {
-                                self.select(option);
-                            }
+                            option.index() >= 0 && self.select(option);
                         }
                     }
                 });
@@ -155,12 +158,17 @@
                 if (this.options[this.value].data('button-class')) {
                     this.button.addClass(this.options[this.value].data('button-class'));
                 }
+                this.current.attr('class', this.current.data('original-class'));
+                if (this.options[this.value].data('current-class')) {
+                    this.current.addClass(this.options[this.value].data('current-class'));
+                }
             }
             this._scrollToCurrent();
+			return this.element.val();
         },
         select: function (value) {
-            this._select(value);
-            this.settings.onChange();
+			var currentValue = this._select(value);
+            this.settings.onChange.apply(this.element, [currentValue, this]);
         },
         clear: function () {
             var empty = this.element.find('option:not([value])');
@@ -229,6 +237,8 @@
         placeholder: 'Выберите из списка',
         clearButton: '&times;',
         toggleButton: '<i class="icon-angle-down"></i>',
+        onInit: function () {
+        },
         onChange: function () {
         }
     };
