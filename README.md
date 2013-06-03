@@ -37,10 +37,9 @@ $(function() {
 ```
 That's it :) Profit!
 
-<!--
 ### Optional
 Simply include [nanoScroller](http://jamesflorentino.github.io/nanoScrollerJS/) on your page and ugly browser scroll would replaced with nice scroll :)
--->
+
 
 Example with all supported options provided by default:
 -----------
@@ -101,10 +100,7 @@ Depends on:
 -----------
 - [jQuery](http://jquery.com) (tested on 1.9.1)
 - [Bootstrap](https://github.com/twitter/bootstrap) (2.3.1 or 2.3.2)
-
-<!--
 - (optional) [nanoScroller](http://jamesflorentino.github.io/nanoScrollerJS/) (tested on 0.7.2)
--->
 
 
 #### @TODO
