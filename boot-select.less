@@ -48,8 +48,7 @@
 		  padding: 4px 6px;
 		}
 		&.active a,
-		a:focus,
-		a:hover {
+		&:hover a {
 		  color: #ffffff;
 		  text-decoration: none;
 		  background-color: #0081c2;
@@ -60,6 +59,15 @@
 		  background-image: linear-gradient(to bottom, #0088cc, #0077b3);
 		  background-repeat: repeat-x;
 		  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc', endColorstr='#ff0077b3', GradientType=0);
+		}
+		&.disabled a,
+		&.disabled:hover a {
+	      color: #999999;
+		  text-decoration: none;
+		  cursor: default;
+		  background-color: transparent;
+		  background-image: none;
+		  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
 		}
 	  }
 	}

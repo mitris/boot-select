@@ -1,5 +1,5 @@
 /* ============================================================
- * boot-select.js v2.0.2
+ * boot-select.js v2.0.3
  * http://github.com/mitris/boot-select
  * ============================================================ */
 
@@ -67,7 +67,7 @@
             this._scrollToCurrent();
         },
         _updateSelected: function () {
-            var currentValue = this._select(this.element.find(':selected'));
+            var currentValue = this.select(this.element.find(':selected'), true);
             this.settings.onInit.apply(this.element, [currentValue, this]);
         },
         _fixWidth: function() {
@@ -142,7 +142,8 @@
         _scrollToCurrent: function () {
             this.dropdown.scrollTop(this.dropdown.find('.active').index() * this.dropdown.find('.active').outerHeight() - this.dropdown.outerHeight() / 2);
         },
-        _select: function (value) {
+        select: function (value, ignoreOnChange) {
+			var ignoreOnChange = ignoreOnChange ? ignoreOnChange : false;
             if (value instanceof jQuery) {
                 var option = value;
             } else if (value instanceof HTMLElement) {
@@ -170,11 +171,9 @@
                 }
             }
             this._scrollToCurrent();
-			return this.element.val();
-        },
-        select: function (value) {
-			var currentValue = this._select(value);
-            this.settings.onChange.apply(this.element, [currentValue, this]);
+			var currentValue = this.element.val();
+			!ignoreOnChange && this.settings.onChange.apply(this.element, [currentValue, this]);
+			return currentValue;
         },
         clear: function () {
             var empty = this.element.find('option:not([value])');
