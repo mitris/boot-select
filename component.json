@@ -1,0 +1,5 @@
+{
+    "name": "boot-select",
+    "version": "2.0.3",
+    "main": ["boot-select.js", "boot-select.css"]
+}
