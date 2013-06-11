@@ -1,7 +1,6 @@
-/* ============================================================
- * boot-select.js v2.0.3
+/* boot-select.js v2.0.3
  * http://github.com/mitris/boot-select
- * ============================================================ */
+ * Copyright (c) 2013 Dmitry Korniychuk; Licensed MIT */
 
 !function ($) {
     "use strict"; // jshint ;_;
